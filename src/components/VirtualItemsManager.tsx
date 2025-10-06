@@ -6,6 +6,7 @@ import { VirtualItemsList } from './VirtualItemsList';
 import { VirtualItemForm } from './VirtualItemForm';
 import { VirtualItemsFilters } from './VirtualItemsFilters';
 import { ImportExportButtons } from './ImportExportButtons';
+import { PageSizeSelector } from './PageSizeSelector';
 
 export function VirtualItemsManager() {
   const [items, setItems] = useState<VirtualItem[]>([]);
@@ -15,9 +16,17 @@ export function VirtualItemsManager() {
   const [editingItem, setEditingItem] = useState<VirtualItem | null>(null);
   const [filters, setFilters] = useState<VirtualItemFilters>({});
   const [filterOptions, setFilterOptions] = useState<any>({});
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrev: false
+  });
 
-  // Fetch items from API
-  const fetchItems = async (currentFilters?: VirtualItemFilters) => {
+  // Fetch items from API with pagination
+  const fetchItems = async (currentFilters?: VirtualItemFilters, page: number = 1) => {
     try {
       setLoading(true);
       setError(null);
@@ -32,12 +41,17 @@ export function VirtualItemsManager() {
       if (currentFilters?.artist) queryParams.append('artist', currentFilters.artist);
       if (currentFilters?.rarity) queryParams.append('rarity', currentFilters.rarity);
       if (currentFilters?.search) queryParams.append('search', currentFilters.search);
+      
+      // Add pagination parameters
+      queryParams.append('page', page.toString());
+      queryParams.append('limit', pagination.limit.toString());
 
       const response = await fetch(`/api/virtual-items?${queryParams.toString()}`);
       const data = await response.json();
 
       if (data.success) {
         setItems(data.data);
+        setPagination(data.pagination);
       } else {
         setError(data.error || 'Failed to fetch items');
       }
@@ -72,7 +86,20 @@ export function VirtualItemsManager() {
   // Handle filter changes
   const handleFiltersChange = (newFilters: VirtualItemFilters) => {
     setFilters(newFilters);
-    fetchItems(newFilters);
+    setPagination(prev => ({ ...prev, page: 1 })); // Reset to first page when filtering
+    fetchItems(newFilters, 1);
+  };
+
+  // Handle page changes
+  const handlePageChange = (page: number) => {
+    setPagination(prev => ({ ...prev, page }));
+    fetchItems(filters, page);
+  };
+
+  // Handle page size changes
+  const handleLimitChange = (limit: number) => {
+    setPagination(prev => ({ ...prev, limit, page: 1 }));
+    fetchItems(filters, 1);
   };
 
   // Handle item creation
@@ -192,21 +219,32 @@ export function VirtualItemsManager() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h2 className="text-2xl font-semibold text-gray-900">
-            Virtual Items ({items.length})
+            Virtual Items ({pagination.total})
           </h2>
           <p className="text-gray-600">
             Manage your virtual item metadata
+            {pagination.totalPages > 1 && (
+              <span className="ml-2 text-sm text-gray-500">
+                (Page {pagination.page} of {pagination.totalPages})
+              </span>
+            )}
           </p>
         </div>
         
-        <div className="flex gap-3">
-          <ImportExportButtons onImportSuccess={() => fetchItems(filters)} />
-          <button
-            onClick={() => setShowForm(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Add New Item
-          </button>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex gap-3">
+            <ImportExportButtons onImportSuccess={() => fetchItems(filters)} />
+            <button
+              onClick={() => setShowForm(true)}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Add New Item
+            </button>
+          </div>
+          <PageSizeSelector
+            currentLimit={pagination.limit}
+            onLimitChange={handleLimitChange}
+          />
         </div>
       </div>
 
@@ -222,6 +260,8 @@ export function VirtualItemsManager() {
         items={items}
         onEdit={handleEditItem}
         onDelete={handleItemDelete}
+        pagination={pagination}
+        onPageChange={handlePageChange}
       />
 
       {/* Form Modal */}

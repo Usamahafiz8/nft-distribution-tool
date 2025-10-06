@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { virtualItemStore } from '@/lib/data-store';
+import { virtualItemStorePrisma } from '@/lib/data-store-prisma';
 import { VirtualItemCreateInput, VirtualItemFilters } from '@/types/virtual-item';
 
-// GET /api/virtual-items - Get all virtual items with optional filtering
+// GET /api/virtual-items - Get all virtual items with optional filtering and pagination
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -20,12 +20,24 @@ export async function GET(request: NextRequest) {
     if (searchParams.get('rarity')) filters.rarity = searchParams.get('rarity')!;
     if (searchParams.get('search')) filters.search = searchParams.get('search')!;
 
-    const items = virtualItemStore.getAll(filters);
+    // Pagination parameters
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const skip = (page - 1) * limit;
+
+    const result = await virtualItemStorePrisma.getAllWithPagination(filters, skip, limit);
     
     return NextResponse.json({
       success: true,
-      data: items,
-      count: items.length
+      data: result.items,
+      pagination: {
+        page,
+        limit,
+        total: result.total,
+        totalPages: Math.ceil(result.total / limit),
+        hasNext: page < Math.ceil(result.total / limit),
+        hasPrev: page > 1
+      }
     });
   } catch (error) {
     console.error('Error fetching virtual items:', error);
@@ -55,7 +67,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const newItem = virtualItemStore.create(body as VirtualItemCreateInput);
+    const newItem = await virtualItemStorePrisma.create(body as VirtualItemCreateInput);
     
     return NextResponse.json({
       success: true,

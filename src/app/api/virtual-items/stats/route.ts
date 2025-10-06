@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { virtualItemStorePrisma } from '@/lib/data-store-prisma';
 
-// GET /api/virtual-items/export - Export all virtual items as CSV
+// GET /api/virtual-items/stats - Get database statistics
 export async function GET(request: NextRequest) {
   try {
-    const csvData = await virtualItemStorePrisma.exportToCSV();
+    const stats = await virtualItemStorePrisma.getStats();
     
     return NextResponse.json({
       success: true,
-      data: csvData,
-      count: csvData.length
+      data: stats
     });
   } catch (error) {
-    console.error('Error exporting virtual items:', error);
+    console.error('Error fetching stats:', error);
     return NextResponse.json(
-      { success: false, error: 'Failed to export virtual items' },
+      { success: false, error: 'Failed to fetch statistics' },
       { status: 500 }
     );
   }

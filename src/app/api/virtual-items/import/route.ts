@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { virtualItemStore } from '@/lib/data-store';
+import { virtualItemStorePrisma } from '@/lib/data-store-prisma';
 
 // POST /api/virtual-items/import - Import virtual items from CSV data
 export async function POST(request: NextRequest) {
@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const importedItems = virtualItemStore.importFromCSV(csvData);
+    const importedItems = await virtualItemStorePrisma.importFromCSV(csvData);
     
     return NextResponse.json({
       success: true,

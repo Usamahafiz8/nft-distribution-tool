@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { virtualItemStore } from '@/lib/data-store';
+import { virtualItemStorePrisma } from '@/lib/data-store-prisma';
 
 // GET /api/virtual-items/[id] - Get a specific virtual item
 export async function GET(
@@ -7,7 +7,7 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const item = virtualItemStore.getById(params.id);
+    const item = await virtualItemStorePrisma.getById(params.id);
     
     if (!item) {
       return NextResponse.json(
@@ -37,7 +37,7 @@ export async function PUT(
   try {
     const body = await request.json();
     
-    const updatedItem = virtualItemStore.update(params.id, body);
+    const updatedItem = await virtualItemStorePrisma.update(params.id, body);
     
     if (!updatedItem) {
       return NextResponse.json(
@@ -65,7 +65,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const success = virtualItemStore.delete(params.id);
+    const success = await virtualItemStorePrisma.delete(params.id);
     
     if (!success) {
       return NextResponse.json(

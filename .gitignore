@@ -11,6 +11,11 @@
 !.yarn/versions
 
 # testing
+dump.sql
+.env
+*.sqlite
+*.db
+
 /coverage
 
 # next.js

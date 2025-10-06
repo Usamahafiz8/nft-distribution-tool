@@ -15,7 +15,16 @@ export function VirtualItemsManager() {
   const [showForm, setShowForm] = useState(false);
   const [editingItem, setEditingItem] = useState<VirtualItem | null>(null);
   const [filters, setFilters] = useState<VirtualItemFilters>({});
-  const [filterOptions, setFilterOptions] = useState<any>({});
+  const [filterOptions, setFilterOptions] = useState<{
+    platforms?: string[];
+    intellectualProperties?: string[];
+    categories?: string[];
+    types?: string[];
+    collections?: string[];
+    series?: string[];
+    artists?: string[];
+    rarities?: string[];
+  }>({});
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,
@@ -103,7 +112,7 @@ export function VirtualItemsManager() {
   };
 
   // Handle item creation
-  const handleItemCreate = async (itemData: any) => {
+  const handleItemCreate = async (itemData: Record<string, unknown>) => {
     try {
       const response = await fetch('/api/virtual-items', {
         method: 'POST',
@@ -128,9 +137,9 @@ export function VirtualItemsManager() {
   };
 
   // Handle item update
-  const handleItemUpdate = async (id: string, itemData: any) => {
+  const handleItemUpdate = async (itemData: Record<string, unknown>) => {
     try {
-      const response = await fetch(`/api/virtual-items/${id}`, {
+      const response = await fetch(`/api/virtual-items/${itemData.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

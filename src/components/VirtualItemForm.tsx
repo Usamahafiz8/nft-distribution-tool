@@ -5,7 +5,7 @@ import { VirtualItem } from '@/types/virtual-item';
 
 interface VirtualItemFormProps {
   item?: VirtualItem | null;
-  onSave: (data: any) => Promise<{ success: boolean; error?: string }>;
+  onSave: (data: Record<string, unknown>) => Promise<{ success: boolean; error?: string }>;
   onClose: () => void;
 }
 

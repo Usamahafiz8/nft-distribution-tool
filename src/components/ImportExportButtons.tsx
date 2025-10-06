@@ -93,7 +93,7 @@ export function ImportExportButtons({ onImportSuccess }: ImportExportButtonsProp
     reader.readAsText(file);
   };
 
-  const convertToCSV = (data: any[]) => {
+  const convertToCSV = (data: Record<string, unknown>[]) => {
     if (data.length === 0) return '';
 
     const headers = Object.keys(data[0]);
@@ -150,7 +150,7 @@ export function ImportExportButtons({ onImportSuccess }: ImportExportButtonsProp
       
       // Only process rows that have essential data (Platform and Title)
       if (values.length > 0 && values[0] && values[7]) { // Platform and Title columns
-        const row: any = {};
+        const row: Record<string, unknown> = {};
         
         headers.forEach((header, index) => {
           row[header] = values[index] || '';

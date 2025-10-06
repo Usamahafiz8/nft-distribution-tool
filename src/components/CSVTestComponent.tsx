@@ -38,7 +38,7 @@ Gamisodes,https://gamisodes.com,Inspector Gadget,TV-Y7,Collectible,Trading Card,
         
         const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
         if (values.length > 0 && values[0] && values[7]) {
-          const row: any = {};
+          const row: Record<string, unknown> = {};
           headers.forEach((header, index) => {
             row[header] = values[index] || '';
           });

@@ -1,5 +1,5 @@
 import { prisma } from './prisma';
-import { VirtualItem, VirtualItemCreateInput, VirtualItemUpdateInput, VirtualItemFilters } from '@/types/virtual-item';
+import { VirtualItem, VirtualItemCreateInput, VirtualItemFilters } from '@/types/virtual-item';
 
 // Prisma-based data store
 class VirtualItemStorePrisma {
@@ -59,7 +59,7 @@ class VirtualItemStorePrisma {
 
   // Get all items with optional filtering
   async getAll(filters?: VirtualItemFilters): Promise<VirtualItem[]> {
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (filters) {
       if (filters.platform) {
@@ -106,7 +106,7 @@ class VirtualItemStorePrisma {
 
   // Get all items with pagination
   async getAllWithPagination(filters?: VirtualItemFilters, skip: number = 0, limit: number = 10): Promise<{ items: VirtualItem[]; total: number }> {
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (filters) {
       if (filters.platform) {
@@ -205,7 +205,7 @@ class VirtualItemStorePrisma {
 
     const values: string[] = [];
     for (const item of items) {
-      const value = item[field as keyof typeof item] as any;
+      const value = item[field as keyof typeof item] as unknown;
       if (typeof value === 'string' && value.trim() !== '') {
         values.push(value.trim());
       }
@@ -215,61 +215,63 @@ class VirtualItemStorePrisma {
   }
 
   // Import items from CSV data
-  async importFromCSV(csvData: any[]): Promise<VirtualItem[]> {
+  async importFromCSV(csvData: Record<string, unknown>[]): Promise<VirtualItem[]> {
     const importedItems: VirtualItem[] = [];
     
     console.log('Importing CSV data:', csvData.length, 'rows');
     
     for (const row of csvData) {
       // Check if row has essential data
-      if (row.Platform && row.Title && row.Platform.trim() !== '' && row.Title.trim() !== '') {
-        console.log('Processing row:', row.Title);
+      const platform = row.Platform as string;
+      const title = row.Title as string;
+      if (platform && title && platform.trim() !== '' && title.trim() !== '') {
+        console.log('Processing row:', title);
         
         const itemData: VirtualItemCreateInput = {
-          platform: row.Platform || '',
-          platformUrl: row['Platform URL'] || '',
-          intellectualProperty: row['Intellectual Property'] || '',
-          ageRating: row['Age Rating'] || '',
-          category: row.Category || '',
-          type: row.Type || '',
-          subType: row['Sub-Type'] || '',
-          title: row.Title || '',
-          mintSupply: row['Mint Supply'] || '',
-          includeSerialNumber: row['Include Serial #'] || '',
-          preMintCount: row['Pre-Mint Count'] || '',
-          reservedSerialNumbers: row['Reserved Serial #s'] || '',
-          serialNumberTransferOrder: row['Serial # Transfer Order'] || '',
-          purchaseCurrency1: row['Purchase Currency - 1'] || '',
-          purchasePrice1: row['Purchase Price - 1'] || '',
-          andOr: row['And / Or'] || '',
-          purchaseCurrency2: row['Purchase Currency - 2'] || '',
-          purchasePrice2: row['Purchase Price - 2'] || '',
-          unlockCurrency: row['Unlock Currency'] || '',
-          unlockThreshold: row['Unlock Threshold'] || '',
-          mediaPrimaryGoogleUrl: row['Media - Primary (Google URL)'] || '',
-          mediaDisplayGoogleUrl: row['Media - Display (Google URL)'] || '',
-          mediaPrimaryS3Bucket: row['Media - Primary (S3 bucket)'] || '',
-          mediaDisplayS3Bucket: row['Media - Display (S3 bucket)'] || '',
-          transferability: row.Transferabilty || '',
-          p2pSaleRoyalty: row['P2P Sale Royalty'] || '',
-          description: row.Description || '',
-          mintLimitPerWallet: row['Mint Limit / Wallet'] || '',
-          p2pLimitPerWallet: row['P2P Limit / Wallet'] || '',
-          collection: row.Collection || '',
-          series: row.Series || '',
-          episode: row.Episode || '',
-          set: row.Set || '',
-          season: row.Season || '',
-          level: row.Level || '',
-          rank: row.Rank || '',
-          enhancement: row.Enhancement || '',
-          levelRankUpgradeType: row['Level/Rank Upgrade Type (Dynamic or Additional)'] || '',
-          artist: row.Artist || '',
-          editionType: row['Edition Type'] || '',
-          rarity: row.Rarity || '',
-          bonusMediaUrl: row['Bonus Media URL (e.g., YouTube link)'] || '',
-          copyright: row.Copyright || '',
-          comments: row.Comments || '',
+          platform: platform,
+          platformUrl: (row['Platform URL'] as string) || '',
+          intellectualProperty: (row['Intellectual Property'] as string) || '',
+          ageRating: (row['Age Rating'] as string) || '',
+          category: (row.Category as string) || '',
+          type: (row.Type as string) || '',
+          subType: (row['Sub-Type'] as string) || '',
+          title: title,
+          mintSupply: (row['Mint Supply'] as string) || '',
+          includeSerialNumber: (row['Include Serial #'] as string) || '',
+          preMintCount: (row['Pre-Mint Count'] as string) || '',
+          reservedSerialNumbers: (row['Reserved Serial #s'] as string) || '',
+          serialNumberTransferOrder: (row['Serial # Transfer Order'] as string) || '',
+          purchaseCurrency1: (row['Purchase Currency - 1'] as string) || '',
+          purchasePrice1: (row['Purchase Price - 1'] as string) || '',
+          andOr: (row['And / Or'] as string) || '',
+          purchaseCurrency2: (row['Purchase Currency - 2'] as string) || '',
+          purchasePrice2: (row['Purchase Price - 2'] as string) || '',
+          unlockCurrency: (row['Unlock Currency'] as string) || '',
+          unlockThreshold: (row['Unlock Threshold'] as string) || '',
+          mediaPrimaryGoogleUrl: (row['Media - Primary (Google URL)'] as string) || '',
+          mediaDisplayGoogleUrl: (row['Media - Display (Google URL)'] as string) || '',
+          mediaPrimaryS3Bucket: (row['Media - Primary (S3 bucket)'] as string) || '',
+          mediaDisplayS3Bucket: (row['Media - Display (S3 bucket)'] as string) || '',
+          transferability: (row.Transferabilty as string) || '',
+          p2pSaleRoyalty: (row['P2P Sale Royalty'] as string) || '',
+          description: (row.Description as string) || '',
+          mintLimitPerWallet: (row['Mint Limit / Wallet'] as string) || '',
+          p2pLimitPerWallet: (row['P2P Limit / Wallet'] as string) || '',
+          collection: (row.Collection as string) || '',
+          series: (row.Series as string) || '',
+          episode: (row.Episode as string) || '',
+          set: (row.Set as string) || '',
+          season: (row.Season as string) || '',
+          level: (row.Level as string) || '',
+          rank: (row.Rank as string) || '',
+          enhancement: (row.Enhancement as string) || '',
+          levelRankUpgradeType: (row['Level/Rank Upgrade Type (Dynamic or Additional)'] as string) || '',
+          artist: (row.Artist as string) || '',
+          editionType: (row['Edition Type'] as string) || '',
+          rarity: (row.Rarity as string) || '',
+          bonusMediaUrl: (row['Bonus Media URL (e.g., YouTube link)'] as string) || '',
+          copyright: (row.Copyright as string) || '',
+          comments: (row.Comments as string) || '',
         };
 
         const newItem = await this.create(itemData);
@@ -284,7 +286,7 @@ class VirtualItemStorePrisma {
   }
 
   // Export items to CSV format
-  async exportToCSV(): Promise<any[]> {
+  async exportToCSV(): Promise<Record<string, unknown>[]> {
     const items = await prisma.virtualItem.findMany({
       orderBy: { createdAt: 'desc' },
     });

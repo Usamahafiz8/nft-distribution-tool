@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { virtualItemStorePrisma } from '@/lib/data-store-prisma';
 
 // GET /api/virtual-items/filters - Get unique values for filter dropdowns
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const filters = {
       platforms: await virtualItemStorePrisma.getUniqueValues('platform'),

@@ -4,10 +4,11 @@ import { virtualItemStorePrisma } from '@/lib/data-store-prisma';
 // GET /api/virtual-items/[id] - Get a specific virtual item
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const item = await virtualItemStorePrisma.getById(params.id);
+    const { id } = await params;
+    const item = await virtualItemStorePrisma.getById(id);
     
     if (!item) {
       return NextResponse.json(
@@ -32,12 +33,13 @@ export async function GET(
 // PUT /api/virtual-items/[id] - Update a virtual item
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await request.json();
     
-    const updatedItem = await virtualItemStorePrisma.update(params.id, body);
+    const updatedItem = await virtualItemStorePrisma.update(id, body);
     
     if (!updatedItem) {
       return NextResponse.json(
@@ -62,10 +64,11 @@ export async function PUT(
 // DELETE /api/virtual-items/[id] - Delete a virtual item
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const success = await virtualItemStorePrisma.delete(params.id);
+    const { id } = await params;
+    const success = await virtualItemStorePrisma.delete(id);
     
     if (!success) {
       return NextResponse.json(
